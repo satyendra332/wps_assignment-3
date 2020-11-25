@@ -1,8 +1,10 @@
+QUESTION
 Create a web-page with the appropriate controls to display a
 form with the fields specified in the image. Write a PHP
 program to store the data in DB only after the user submits
 from in the second page.
 
+SOLUTION
 <html>    
     <head>    
         <title>Registration Form</title>    
