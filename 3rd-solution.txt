@@ -1,187 +1,92 @@
+QUESTION
 Create a web service client to consume a rest based service
 hosted at https://reqres.in/api/unknown to read the users
 data.
 
+SOLUTION
+<html>
+<head>
+<title>Question 3</title>
+<meta name="viewport" width="device-width" initial-scale="1" />
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<style>
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Web.Http;
-
-namespace MyWebAPI.Controller
-{
-    public class StudentController : ApiController
-    {
-        public IHttpActionResult GetAllStudents(bool includeAddress = false)
-        {
-            IList<StudentViewModel> students = null;
-
-            using (var ctx = new SchoolDBEntities())
-            {
-                students = ctx.Students.Include("StudentAddress").Select(s => new StudentViewModel()
-                {
-                    Id = s.StudentID,
-                    FirstName = s.FirstName,
-                    LastName = s.LastName,
-                    Address = s.StudentAddress == null || includeAddress == false ? null : new AddressViewModel()
-                    {
-                        StudentId = s.StudentAddress.StudentID,
-                        Address1 = s.StudentAddress.Address1,
-                        Address2 = s.StudentAddress.Address2,
-                        City = s.StudentAddress.City,
-                        State = s.StudentAddress.State
-                    }
-                }).ToList<StudentViewModel>();
-            }
-
-            if (students.Count == 0)
-            {
-                return NotFound();
-            }
-
-            return Ok(students);
-        }
-
-        public IHttpActionResult PostNewStudent(StudentViewModel student)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest("Not a valid data");
-
-            using (var ctx = new SchoolDBEntities())
-            {
-                ctx.Students.Add(new Student()
-                {
-                    StudentID = student.Id,
-                    FirstName = student.FirstName,
-                    LastName = student.LastName
-                });
-
-                ctx.SaveChanges();
-            }
-            return Ok();
-        }
-
-        public IHttpActionResult Put(StudentViewModel student)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest("Not a valid data");
-
-            using (var ctx = new SchoolDBEntities())
-            {
-                var existingStudent = ctx.Students.Where(s => s.StudentID == student.Id).FirstOrDefault<Student>();
-
-                if (existingStudent != null)
-                {
-                    existingStudent.FirstName = student.FirstName;
-                    existingStudent.LastName = student.LastName;
-
-                    ctx.SaveChanges();
-                }
-                else
-                {
-                    return NotFound();
-                }
-            }
-            return Ok();
-        }
-
-
-        public IHttpActionResult Delete(int id)
-        {
-            if (id <= 0)
-                return BadRequest("Not a valid studet id");
-
-            using (var ctx = new SchoolDBEntities())
-            {
-                var student = ctx.Students
-                    .Where(s => s.StudentID == id)
-                    .FirstOrDefault();
-
-                ctx.Entry(student).State = System.Data.Entity.EntityState.Deleted;
-                ctx.SaveChanges();
-            }
-            return Ok();
-        }
-    }
+table, th, td {
+ 
+  border: 1px solid black;
+  text-align: center;
+  background-color: rgb(245, 245, 153);
 }
+</style>
+</head>
+<body>
+<script>
+    axios.get('https://reqres.in/api/products/3')
+    .then(response => {
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Http;
-using System.Net.Http.Headers;
+        console.log("This is here")
+        
+        let d = response.data.data;
+        let s = response.data.support;
+        
+        var output='';
+        output +=`
+       
+ <table style="width:100%">
+  <tr>
+    <th>Id</th>
+    <th>Name</th>
+    <th>Year</th>
+    <th>Color</th>
+    <th>Pantone-Value</th>
+  </tr>
+  <tr>
+    <td>${d.id}</td>
+    <td>${d.name}</td>
+    <td>${d.year}</td>
+    <td>${d.color}</td>
+    <td>${d.pantone_value}</td>
+  </tr>
+  </table>
+         `;
+     $('#userdata').html(output);
+     var output1='';
+        output1 +=`
+       
+ <table style="width:100%">
+  <tr>
+    <th>Url</th>
+    <th>Text</th>
+  </tr>
+  <tr>
+    <td>${s.url}</td>
+    <td>${s.text}</td>
+  </tr>
+  </table>
+         `;
+     $('#support').html(output1);
 
-namespace HttpClientDemo
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri("http://localhost:60464/api/");
-                //HTTP GET
-                var responseTask = client.GetAsync("student");
-                responseTask.Wait();
 
-                var result = responseTask.Result;
-                if (result.IsSuccessStatusCode)
-                {
+    })
+    .catch(error => {
 
-                    var readTask = result.Content.ReadAsAsync<Student[]>();
-                    readTask.Wait();
+        console.log(error);
+    })
 
-                    var students = readTask.Result;
 
-                    foreach (var student in students)
-                    {
-                        Console.WriteLine(student.Name);
-                    }
-                }
-            }
-            Console.ReadLine();
-        }        
-    }
-}
+</script>
+<h1> User Data</h1>
+<div id="userdata">
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Http;
-using System.Net.Http.Headers;
 
-namespace HttpClientDemo
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var student = new Student() { Name = "Steve" };
+</div>
+<h2>Support</h2>
+<div id="support">
 
-            var postTask = client.PostAsJsonAsync<Student>("student", student);
-            postTask.Wait();
 
-            var result = postTask.Result;
-            if (result.IsSuccessStatusCode)
-            {
+</div>
 
-                var readTask = result.Content.ReadAsAsync<Student>();
-                readTask.Wait();
 
-                var insertedStudent = readTask.Result;
-
-                Console.WriteLine("Student {0} inserted with id: {1}", insertedStudent.Name, insertedStudent.Id);
-            }
-            else
-            {
-                Console.WriteLine(result.StatusCode);
-            }
-        }
-    }
-}
+</body>
+</html>
